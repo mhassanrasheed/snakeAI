@@ -336,7 +336,6 @@ def mate(parents):
                         if len(p.shape) == 1 and param.shape == p.shape:
                             param[i0] = p[i0]
     babies = make_babies(DNA)
-    # draw(parents[0], Food())
     for parent in parents:
         print(parent.fitness)
     babies.append(parents[0].brain)
@@ -388,8 +387,6 @@ def run():
                     new_snake = Snake()
                     new_snake.brain = new_brain
                     snakes.append(new_snake)
-                for x, snake in enumerate(snakes):
-                    print(x, snake)
                 food = Food()
                 for_next = []
 
