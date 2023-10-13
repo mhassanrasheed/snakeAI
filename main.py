@@ -30,8 +30,8 @@ resume_learning = False
 number_of_brains_from_previous_run = 10
 if is_human:
     is_learning = False
-prev_folder = "day4"
-to_save_folder = "day6"
+prev_folder = "training/day6"
+to_save_folder = "training/day10"
 font_style = pygame.font.SysFont("bahnschrift", 15)
 score_font = pygame.font.SysFont("comicsansms", 15)
 
@@ -93,8 +93,8 @@ class Food:
         Initializes the Food object by randomly generating the x and y coordinates
         within the game screen.
         """
-        self.x = int(round(random.randrange(0, width - 10) / 10.0) * 10.0)
-        self.y = int(round(random.randrange(0, height - 10) / 10.0) * 10.0)
+        self.x = int(round(random.randrange(0, width - 20) / 10.0) * 10.0)
+        self.y = int(round(random.randrange(0, height - 20) / 10.0) * 10.0)
 
     def draw(self):
         """
@@ -295,7 +295,7 @@ class Snake:
                 return True
         return False
 
-    def look_in_direction(self, x, y):
+    def look_in_direction(self, x: int, y: int) -> list[int]:
         """
         Looks in a particular direction (x, y) from the current position of the snake and returns information about what it
         sees.
@@ -303,8 +303,6 @@ class Snake:
         Args:
             x (int): The x direction in which the snake should look.
             y (int): The y direction in which the snake should look.
-            fx (int): The x coordinate of the food on the board.
-            fy (int): The y coordinate of the food on the board.
 
         Returns:
             list: A list of 3 elements representing what the snake can see in the given direction:
@@ -414,7 +412,7 @@ class Snake:
             range(4), 1, p=output_probabilities).item()
 
 
-def select_top(previous: list[Snake], limit: int):
+def select_top(previous: list[Snake], limit: int) -> list:
     """
     Selects the top performing snakes from the previous generation.
 
@@ -436,7 +434,7 @@ def select_top(previous: list[Snake], limit: int):
     return sorted_parent_indexes
 
 
-def mutate(DNA):
+def mutate(DNA: SnakeAI) -> SnakeAI:
     """
     Returns a mutated copy of the provided DNA neural network.
 
@@ -469,7 +467,7 @@ def mutate(DNA):
     return baby
 
 
-def make_babies(DNA):
+def make_babies(DNA: SnakeAI) -> list[SnakeAI]:
     """
     Creates a list of mutated copies of the input neural network's parameters.
 
@@ -486,7 +484,7 @@ def make_babies(DNA):
     return babies
 
 
-def draw(snake: Snake, food: Food):
+def draw(snake: Snake, food: Food) -> None:
     """
     Draws the game screen.
 
@@ -586,7 +584,7 @@ def weighted_random_choice(chromosomes: list[Snake]) -> Snake:
             return chromosome
 
 
-def mate(parents: list[Snake]) -> list[Snake]:
+def mate(parents: list[Snake]) -> list[SnakeAI]:
     """
     Performs crossover and mutation on a population of parent individuals to generate a set of child individuals.
 
@@ -655,7 +653,7 @@ def run_agents_n_times(agents: list[Snake], runs: int) -> float:
     return avg_score
 
 
-def next_generation(previous: list[Snake]) -> list[Snake]:
+def next_generation(previous: list[Snake]) -> list[SnakeAI]:
     global mutation_power
     global gen
     gen += 1
@@ -707,13 +705,13 @@ def food_reward(snake: Snake) -> float:
     reward = 0
     # Give more emphasis to length and number of foods eaten as the game progresses
     if snake.score >= 2:
-        reward += snake.length * 10
-        reward += snake.score * 30
+        reward += snake.length * 50
+        reward += snake.score * 80
 
     # Once the snake has eaten 10 foods, encourage it to take the shortest path to the food
     if snake.score >= 10:
 
-        # Increase the fitness score based on the inverse of the distance to the food,
+        # Increase the fitness score based on the inverse of the number of steps taken to reach the food,
         # encouraging the snake to take the shortest path
         reward += (1 / snake.steps_taken) * 1000
 
@@ -728,7 +726,7 @@ def run(snakes: list[Snake]) -> None:
     its current direction.
 
     Args:
-    - s (List[Snake]): The list of Snake objects to evolve.
+    - snakes (List[Snake]): The list of Snake objects to evolve.
 
     Returns:
     - None
@@ -750,7 +748,6 @@ def run(snakes: list[Snake]) -> None:
             snake.move()
 
             # Update the snake's its fitness score
-
             snake.fitness += calculate_fitness(snake)
 
             # If the snake has run out of steps, mark it for removal from the snakes list
