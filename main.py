@@ -5,7 +5,7 @@ from datetime import datetime
 from snakeAI import SnakeAI
 from food import Food
 from snake import Snake
-from helpers import select_top, weighted_random_choice
+from helpers import select_top, weighted_random_choice, pick_some_trained_brains
 import numpy as np
 import pygame
 import torch
@@ -410,30 +410,6 @@ def run(snakes: list[Snake]) -> None:
                 snake.steps_taken = 0
                 snake.food = Food(width=width, height=height)
                 snake.grow()
-
-
-def pick_some_trained_brains(number_of_files: int) -> list[SnakeAI]:
-    # Get the path to the directory containing the saved brains
-    brain_dir = prev_folder
-
-    # Get a list of all the saved brains in the directory
-    brain_files = os.listdir(brain_dir)
-
-    # Extract the numerical part from the file names and convert it to an integer
-    # Use a list comprehension to create a list of tuples containing the numerical part and the file name
-    # For example, if the file name is "10.pth", then the tuple would be (10, "10.pth")
-    brain_files_int = [(int(file_name.split('.')[0]), file_name)
-                       for file_name in brain_files]
-
-    # Sort the file names based on the numerical part
-    # Use the first element of each tuple (i.e., the numerical part) for sorting
-    # Use the "reverse=True" argument to sort in descending order
-    brain_files_int.sort(reverse=True)
-
-    # Get the last "number_of_files" brain file names
-    # Use a list comprehension to extract only the file names from the sorted list of tuples
-    # Use slicing to get only the desired number of files
-    return [file_name for _, file_name in brain_files_int[:number_of_files]]
 
 
 torch.set_grad_enabled(False)
