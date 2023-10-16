@@ -5,6 +5,7 @@ from datetime import datetime
 from snakeAI import SnakeAI
 from food import Food
 from snake import Snake
+from helpers import select_top, weighted_random_choice
 import numpy as np
 import pygame
 import torch
@@ -41,28 +42,6 @@ def your_score(score):
 def message(msg, color, x, y):
     mesg = font_style.render(msg, True, color)
     screen.blit(mesg, [x, y])
-
-
-def select_top(previous: list[Snake], limit: int) -> list:
-    """
-    Selects the top performing snakes from the previous generation.
-
-    The selection is based on the fitness score of each snake. The top `top_limit` snakes are selected
-    to be the parents for the next generation.
-
-    Args:
-        previous (list): A list of snakes from the previous generation.
-
-    Returns:
-        list: A list of indexes of the top performing snakes from the previous generation.
-    """
-    # Create a list of rewards for each snake in the previous generation
-    rewards = [snake.fitness for snake in previous]
-
-    # Sort the rewards in descending order and select the top `top_limit` snakes
-    sorted_parent_indexes = np.argsort(rewards)[::-1][:limit]
-
-    return sorted_parent_indexes
 
 
 def mutate(DNA: SnakeAI) -> SnakeAI:
@@ -230,16 +209,6 @@ def run_for_youtube(brain, display: bool):
             pygame.time.delay(1)
     if not display:
         return top_snake.fitness
-
-
-def weighted_random_choice(chromosomes: list[Snake]) -> Snake:
-    max = sum(chromosome.fitness for chromosome in chromosomes)
-    pick = random.uniform(0, max)
-    current = 0
-    for chromosome in chromosomes:
-        current += chromosome.fitness
-        if current > pick:
-            return chromosome
 
 
 def mate(parents: list[Snake]) -> list[SnakeAI]:
