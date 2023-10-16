@@ -3,6 +3,7 @@ import math
 import os
 import random
 from datetime import datetime
+from snakeAI import SnakeAI
 
 import numpy as np
 import pygame
@@ -50,23 +51,6 @@ def your_score(score):
 def message(msg, color, x, y):
     mesg = font_style.render(msg, True, color)
     screen.blit(mesg, [x, y])
-
-
-class SnakeAI(nn.Module):
-    def __init__(self):
-        super().__init__()
-        self.fc = nn.Sequential(
-            nn.Linear(24, 16, bias=True),
-            nn.ReLU(),
-            # nn.Linear(16, 8, bias=True),
-            # nn.ReLU(),
-            nn.Linear(16, 4, bias=True),
-            nn.Softmax(-1)
-        )
-
-    def forward(self, inputs):
-        x = self.fc(inputs)
-        return x
 
 
 class Food:
