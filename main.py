@@ -20,7 +20,7 @@ height = 600
 speed = 10
 screen = pygame.display.set_mode((width, height))
 yellow = (255, 255, 102)
-population = 500
+population = 10
 snakes = []
 top_limit = 3
 gen = 0
@@ -30,6 +30,7 @@ resume_learning = False
 number_of_brains_from_previous_run = 10
 if is_human:
     is_learning = False
+code_debugging = True
 prev_folder = "training/day6"
 to_save_folder = "training/day10"
 font_style = pygame.font.SysFont("bahnschrift", 15)
@@ -674,7 +675,8 @@ def next_generation(previous: list[Snake]) -> list[SnakeAI]:
         mutation_power = 0.025
     babies = mate(tp_10)
     babies.append(tp_10[0].brain)
-    torch.save(tp_10[0].brain.state_dict(), f"{to_save_folder}/{gen}.pth")
+    if not code_debugging:
+        torch.save(tp_10[0].brain.state_dict(), f"{to_save_folder}/{gen}.pth")
     print("mutation rate : ", mutation_power)
     return babies
 
