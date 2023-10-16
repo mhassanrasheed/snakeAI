@@ -189,7 +189,7 @@ class Snake:
             list: A list of 3 elements representing what the snake can see in the given direction:
                 - The first element is a 1 if there is food in the line of sight, 0 otherwise.
                 - The second element is a 1 if there is any part of the snake's body in the line of sight, 0 otherwise.
-                - The third element is a normalized value representing the distance from the snake's head to the first
+                - The third element is the inverse of the distance from the snake's head to the first
                     obstacle (either food or the snake's body) in the line of sight.
         """
         look = [0, 0, 0]
