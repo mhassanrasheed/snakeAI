@@ -1,39 +1,28 @@
 import copy
-import math
 import os
 import random
 from datetime import datetime
 from snakeAI import SnakeAI
-
+from food import Food
 import numpy as np
 import pygame
 import torch
 import torch.nn as nn
+from config import red, green, yellow, width, height, speed, \
+    population, gen, is_human, is_learning, resume_learning, \
+    number_of_brains_from_previous_run, code_debugging,\
+    prev_folder, to_save_folder
 
-clock = pygame.time.Clock()
-clock = pygame.time.Clock()
-pygame.init()
-red = (255, 0, 0)
-green = (0, 255, 0)
-yellow = (255, 255, 102)
-width = 800
-height = 600
-speed = 10
-screen = pygame.display.set_mode((width, height))
-yellow = (255, 255, 102)
-population = 10
-snakes = []
-top_limit = 3
-gen = 0
-is_human = False
-is_learning = True
-resume_learning = False
-number_of_brains_from_previous_run = 10
 if is_human:
     is_learning = False
-code_debugging = True
-prev_folder = "training/day6"
-to_save_folder = "training/day10"
+
+snakes = []
+
+clock = pygame.time.Clock()
+
+pygame.init()
+screen = pygame.display.set_mode((width, height))
+
 font_style = pygame.font.SysFont("bahnschrift", 15)
 score_font = pygame.font.SysFont("comicsansms", 15)
 
@@ -51,41 +40,6 @@ def your_score(score):
 def message(msg, color, x, y):
     mesg = font_style.render(msg, True, color)
     screen.blit(mesg, [x, y])
-
-
-class Food:
-    """
-    A class to represent the food that the snake can eat.
-
-    Attributes:
-    -----------
-    x : int
-        The x-coordinate of the food on the screen.
-    y : int
-        The y-coordinate of the food on the screen.
-
-    Methods:
-    --------
-    __init__(self):
-        Initializes the Food object by randomly generating the x and y coordinates
-        within the game screen.
-    draw(self):
-        Draws the food on the screen as a green rectangle.
-    """
-
-    def __init__(self):
-        """
-        Initializes the Food object by randomly generating the x and y coordinates
-        within the game screen.
-        """
-        self.x = int(round(random.randrange(0, width - 20) / 10.0) * 10.0)
-        self.y = int(round(random.randrange(0, height - 20) / 10.0) * 10.0)
-
-    def draw(self):
-        """
-        Draws the food on the screen as a green rectangle.
-        """
-        pygame.draw.rect(screen, green, [self.x, self.y, 10, 10])
 
 
 def food_collide(pos_x, pos_y, fx, fy):
@@ -142,10 +96,10 @@ class Snake:
         think(self, fx: int, fy: int): Determines the direction of the next move based on the current state of the snake.
     """
 
-    def __init__(self):
+    def __init__(self, width, height):
         # Initialize the snake's starting position, size, direction, and other attributes
         self.block = 10
-        self.food = Food()
+        self.food = Food(width=width, height=height)
         # self.x = int(round(random.randrange(0, height - self.block) / 10.0) * 10.0)
         # self.y = int(round(random.randrange(0, height - self.block) / 10.0) * 10.0)
         self.x = 450
@@ -469,6 +423,13 @@ def make_babies(DNA: SnakeAI) -> list[SnakeAI]:
     return babies
 
 
+def draw_food(food: Food) -> None:
+    """
+    Draws the food on the screen as a green rectangle.
+    """
+    pygame.draw.rect(screen, green, [food.x, food.y, 10, 10])
+
+
 def draw(snake: Snake, food: Food) -> None:
     """
     Draws the game screen.
@@ -490,7 +451,7 @@ def draw(snake: Snake, food: Food) -> None:
     message("Gen : " + str(gen), yellow, 5, 30)
 
     # Draw the food
-    food.draw()
+    draw_food(food=food)
 
     # Move the snake
     snake.move()
@@ -508,7 +469,7 @@ def draw(snake: Snake, food: Food) -> None:
 def run_for_youtube(brain, display: bool):
     global gen
     dead = False
-    top_snake = Snake()
+    top_snake = Snake(width=width, height=height)
     top_snake.brain = brain
 
     # Run the game until the snake dies
@@ -549,7 +510,7 @@ def run_for_youtube(brain, display: bool):
             top_snake.steps_allowed += 200
             top_snake.fitness += food_reward(top_snake)
             top_snake.steps_taken = 0
-            top_snake.food = Food()
+            top_snake.food = Food(width=width, height=height)
             top_snake.grow()
         if display:
             pygame.time.delay(speed)
@@ -766,7 +727,7 @@ def run(snakes: list[Snake]) -> None:
                 snake.steps_allowed += 200
                 snake.fitness += food_reward(snake)
                 snake.steps_taken = 0
-                snake.food = Food()
+                snake.food = Food(width=width, height=height)
                 snake.grow()
 
 
@@ -800,23 +761,23 @@ default_time = datetime.min
 if is_learning:
     if resume_learning:
         for snake in range(population-number_of_brains_from_previous_run):
-            snake = Snake()
+            snake = Snake(width=width, height=height)
             snakes.append(snake)
 
         for file in pick_some_trained_brains(number_of_brains_from_previous_run):
-            snake = Snake()
+            snake = Snake(width=width, height=height)
             snake.brain.load_state_dict(
                 torch.load(os.path.join(prev_folder, file)))
             snakes.append(snake)
     else:
         for snake in range(population):
-            snake = Snake()
+            snake = Snake(width=width, height=height)
             snakes.append(snake)
 
 
 else:
     for brain_file in pick_some_trained_brains(100):
-        snake = Snake()
+        snake = Snake(width=width, height=height)
         snake.brain.load_state_dict(
             torch.load(os.path.join(prev_folder, brain_file)))
         run_for_youtube(snake.brain, True)
@@ -824,6 +785,6 @@ else:
 while gen < 10000:
     run(snakes)
     for new_brain in next_generation(for_next):
-        new_snake = Snake()
+        new_snake = Snake(width=width, height=height)
         new_snake.brain = new_brain
         snakes.append(new_snake)
