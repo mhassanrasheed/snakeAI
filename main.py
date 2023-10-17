@@ -6,6 +6,7 @@ from snakeAI import SnakeAI
 from food import Food
 from snake import Snake
 from helpers import select_top, weighted_random_choice, pick_some_trained_brains
+from display import GameDisplay
 import numpy as np
 import pygame
 import torch
@@ -20,28 +21,8 @@ if is_human:
 
 snakes = []
 
-clock = pygame.time.Clock()
 
-pygame.init()
-screen = pygame.display.set_mode((width, height))
-
-font_style = pygame.font.SysFont("bahnschrift", 15)
-score_font = pygame.font.SysFont("comicsansms", 15)
-
-
-def snake_fitness(fitness):
-    value = score_font.render("fitness: " + str(fitness), True, yellow)
-    screen.blit(value, [5, 30])
-
-
-def your_score(score):
-    value = score_font.render("Score: " + str(score), True, yellow)
-    screen.blit(value, [5, 0])
-
-
-def message(msg, color, x, y):
-    mesg = font_style.render(msg, True, color)
-    screen.blit(mesg, [x, y])
+visual = GameDisplay(width=width, height=height)
 
 
 def mutate(DNA: SnakeAI) -> SnakeAI:
@@ -94,69 +75,6 @@ def make_babies(DNA: SnakeAI) -> list[SnakeAI]:
     return babies
 
 
-def draw_food(food: Food) -> None:
-    """
-    Draws the food on the screen as a green rectangle.
-    """
-    pygame.draw.rect(screen, green, [food.x, food.y, 10, 10])
-
-
-def draw_snake(snake: Snake) -> None:
-    """
-        Draws the snake on the game screen.
-
-        This method loops through all the blocks in the snake's body and draws them on the screen using the Pygame library's
-        draw method.
-
-        Args:
-            None
-
-        Returns:
-            None
-    """
-    for x in snake.full:
-        # Pygame's draw method takes the following arguments: (screen, color, (x,y,width,height))
-        # Here, we pass in the game screen object, the color of the snake, and the (x,y) coordinates and dimensions of the block.
-        pygame.draw.rect(screen, snake.color,
-                         (x[0], x[1], snake.block, snake.block))
-
-
-def draw(snake: Snake, food: Food) -> None:
-    """
-    Draws the game screen.
-
-    Args:
-        snake (Snake): An instance of the Snake class representing the game's snake.
-        food (Food): An instance of the Food class representing the game's food.
-
-    Returns:
-        None
-    """
-    # Set the background color to black
-    screen.fill((0, 0, 0))
-
-    # Display the player's score
-    your_score(snake.score)
-
-    # Display the generation number
-    message("Gen : " + str(gen), yellow, 5, 30)
-
-    # Draw the food
-    draw_food(food=food)
-
-    # Move the snake
-    snake.move()
-
-    # Draw the snake
-    draw_snake(snake)
-
-    # Set the game clock to tick at 20 frames per second
-    # clock.tick(20)
-
-    # Update the display to show the current screen
-    pygame.display.update()
-
-
 def run_for_youtube(brain, display: bool):
     global gen
     dead = False
@@ -184,7 +102,7 @@ def run_for_youtube(brain, display: bool):
 
         top_snake.fitness += calculate_fitness(top_snake)
         # Draw the game on the screen
-        draw(top_snake, top_snake.food)
+        visual.draw(top_snake, top_snake.food, gen)
 
         # Check if the snake is dead
         if top_snake.steps_allowed <= 0:
@@ -413,7 +331,6 @@ def run(snakes: list[Snake]) -> None:
 
 
 torch.set_grad_enabled(False)
-default_time = datetime.min
 
 if is_learning:
     if resume_learning:
