@@ -6,6 +6,7 @@ from food import Food
 from snake import Snake
 from helpers import select_top, weighted_random_choice, pick_some_trained_brains
 from display import GameDisplay
+from genetic import GeneticAlgorithm
 import numpy as np
 import pygame
 import torch
@@ -22,56 +23,7 @@ snakes = []
 
 
 visual = GameDisplay(width=width, height=height)
-
-
-def mutate(DNA: SnakeAI) -> SnakeAI:
-    """
-    Returns a mutated copy of the provided DNA neural network.
-
-    Args:
-    - DNA: the neural network to be mutated, represented as a PyTorch module.
-
-    Returns:
-    - A mutated copy of the provided DNA neural network.
-    """
-    # Create a deep copy of the provided DNA neural network.
-    baby = copy.deepcopy(DNA)
-
-    # Iterate through all the parameters in the neural network.
-    for param in baby.parameters():
-
-        # If the parameter is a weight matrix (i.e., a 2D tensor),
-        # apply Gaussian noise to each of its elements.
-        if len(param.shape) == 2:
-            for i0 in range(param.shape[0]):
-                for i1 in range(param.shape[1]):
-                    param[i0][i1] += mutation_power * np.random.randn()
-
-        # If the parameter is a bias vector (i.e., a 1D tensor),
-        # apply Gaussian noise to each of its elements.
-        elif len(param.shape) == 1:
-            for i0 in range(param.shape[0]):
-                param[i0] += mutation_power * np.random.randn()
-
-    # Return the mutated copy of the DNA neural network.
-    return baby
-
-
-def make_babies(DNA: SnakeAI) -> list[SnakeAI]:
-    """
-    Creates a list of mutated copies of the input neural network's parameters.
-
-    Args:
-    - DNA (torch.nn.Module): The neural network to be mutated.
-
-    Returns:
-    - babies (List[torch.nn.Module]): A list of mutated neural networks.
-    """
-    babies = []
-    # create population - 1 mutated copies of the DNA
-    for i in range(population - 1):
-        babies.append(mutate(DNA))
-    return babies
+geneticAlgorithm = GeneticAlgorithm()
 
 
 def run_for_youtube(brain, display: bool):
@@ -128,58 +80,6 @@ def run_for_youtube(brain, display: bool):
         return top_snake.fitness
 
 
-def mate(parents: list[Snake]) -> list[SnakeAI]:
-    """
-    Performs crossover and mutation on a population of parent individuals to generate a set of child individuals.
-
-    Parameters:
-    parents (list): A list of parent individuals.
-
-    Returns:
-    babies (list): A list of child individuals created through crossover and mutation of the parent individuals.
-
-    """
-    # Create a new instance of the SnakeAI class as the DNA for the child individuals
-    DNA = SnakeAI()
-
-    # Iterate through the parameters of the DNA and perform crossover
-    for param in DNA.parameters():
-
-        # Select two random parent individuals to perform crossover with
-        x = weighted_random_choice(parents)
-        y = weighted_random_choice(parents)
-
-        # Ensure that x and y are distinct parent individuals
-        while x is y:
-            y = random.choice(parents)
-
-        for param in DNA.parameters():
-            if len(param.shape) == 2:  # weights of linear layer
-                for i0 in range(param.shape[0]):
-                    for i1 in range(param.shape[1]):
-                        if i0 < (param.shape[0] / 2) and i1 < (param.shape[1]):
-                            for p in x.brain.parameters():
-                                if len(p.shape) == 2 and param.shape == p.shape:
-                                    param[i0][i1] = p[i0][i1]
-                        else:
-                            for p in y.brain.parameters():
-                                if len(p.shape) == 2 and param.shape == p.shape:
-                                    param[i0][i1] = p[i0][i1]
-
-            elif len(param.shape) == 1:  # biases of linear layer or conv layer
-                for i0 in range(param.shape[0]):
-                    if i0 < (param.shape[0] / 2):
-                        for p in x.brain.parameters():
-                            if len(p.shape) == 1 and param.shape == p.shape:
-                                param[i0] = p[i0]
-                    else:
-                        for p in y.brain.parameters():
-                            if len(p.shape) == 1 and param.shape == p.shape:
-                                param[i0] = p[i0]
-    babies = make_babies(DNA)
-    return babies
-
-
 def return_average_score(agent: Snake, runs: int) -> float:
     score = 0
     for i in range(runs):
@@ -198,7 +98,6 @@ def run_agents_n_times(agents: list[Snake], runs: int) -> float:
 
 
 def next_generation(previous: list[Snake]) -> list[SnakeAI]:
-    global mutation_power
     global gen
     gen += 1
     print(
@@ -212,15 +111,15 @@ def next_generation(previous: list[Snake]) -> list[SnakeAI]:
     total = 0
     for average in averages:
         total += average
-    mutation_power = max(averages)/total
+    geneticAlgorithm.mutation_power = max(averages)/total
 
-    if mutation_power < 0.025:
-        mutation_power = 0.025
-    babies = mate(tp_10)
+    if geneticAlgorithm.mutation_power < 0.025:
+        geneticAlgorithm.mutation_power = 0.025
+    babies = geneticAlgorithm.mate(tp_10)
     babies.append(tp_10[0].brain)
     if not code_debugging:
         torch.save(tp_10[0].brain.state_dict(), f"{to_save_folder}/{gen}.pth")
-    print("mutation rate : ", mutation_power)
+    print("mutation rate : ", geneticAlgorithm.mutation_power)
     return babies
 
 

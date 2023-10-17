@@ -11,8 +11,6 @@ is_human = False
 is_learning = True
 resume_learning = True
 number_of_brains_from_previous_run = 10
-if is_human:
-    is_learning = False
 code_debugging = True
 prev_folder = "training/day6"
 to_save_folder = "training/day10"
