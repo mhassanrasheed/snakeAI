@@ -6,7 +6,7 @@ from food import Food
 from snake import Snake
 from helpers import select_top, weighted_random_choice, pick_some_trained_brains
 from display import GameDisplay
-from genetic import GeneticAlgorithm
+from genetic import SnakeLearning
 import numpy as np
 import pygame
 import torch
@@ -23,7 +23,7 @@ snakes = []
 
 
 visual = GameDisplay(width=width, height=height)
-geneticAlgorithm = GeneticAlgorithm()
+geneticAlgorithm = SnakeLearning()
 
 
 def run_for_youtube(brain, display: bool):
@@ -51,7 +51,7 @@ def run_for_youtube(brain, display: bool):
         # Make the snake think about what move to make
         top_snake.think()
 
-        top_snake.fitness += calculate_fitness(top_snake)
+        top_snake.fitness += geneticAlgorithm.calculate_fitness(top_snake)
         # Draw the game on the screen
         visual.draw(top_snake, top_snake.food, gen)
 
@@ -68,7 +68,7 @@ def run_for_youtube(brain, display: bool):
         if top_snake.x == top_snake.food.x and top_snake.y == top_snake.food.y:
             top_snake.score += 1
             top_snake.steps_allowed += 200
-            top_snake.fitness += food_reward(top_snake)
+            top_snake.fitness += geneticAlgorithm.food_reward(top_snake)
             top_snake.steps_taken = 0
             top_snake.food = Food(width=width, height=height)
             top_snake.grow()
@@ -123,45 +123,6 @@ def next_generation(previous: list[Snake]) -> list[SnakeAI]:
     return babies
 
 
-def calculate_fitness(snake: Snake) -> float:
-    """
-    Calculates the fitness score of a given snake.
-
-    The fitness score is a dynamic function that takes into account the length of the snake, the time it has been alive,
-    and the number of foods it has eaten.
-
-    At the beginning of the game, the emphasis is more on the time the snake stays alive. As the game progresses,
-    more emphasis is given to the length and the number of foods eaten.
-
-    Once the snake has eaten 10 foods, the emphasis is given to the shortest path to the food.
-
-    Args:
-        snake (Snake): The snake object for which the fitness score needs to be calculated.
-
-    Returns:
-        float: The fitness score of the given snake.
-    """
-    # Encourage the snake to stay alive for as long as possible
-    return snake.life_time
-
-
-def food_reward(snake: Snake) -> float:
-    reward = 0
-    # Give more emphasis to length and number of foods eaten as the game progresses
-    if snake.score >= 2:
-        reward += snake.length * 50
-        reward += snake.score * 80
-
-    # Once the snake has eaten 10 foods, encourage it to take the shortest path to the food
-    if snake.score >= 10:
-
-        # Increase the fitness score based on the inverse of the number of steps taken to reach the food,
-        # encouraging the snake to take the shortest path
-        reward += (1 / snake.steps_taken) * 1000
-
-    return reward
-
-
 def run(snakes: list[Snake]) -> None:
     """
     Run a genetic algorithm to evolve the given list of Snake objects. This function updates each Snake's fitness score
@@ -192,7 +153,7 @@ def run(snakes: list[Snake]) -> None:
             snake.move()
 
             # Update the snake's its fitness score
-            snake.fitness += calculate_fitness(snake)
+            snake.fitness += geneticAlgorithm.calculate_fitness(snake)
 
             # If the snake has run out of steps, mark it for removal from the snakes list
             if snake.steps_allowed <= 0:
@@ -222,7 +183,7 @@ def run(snakes: list[Snake]) -> None:
             if snake.x == snake.food.x and snake.y == snake.food.y:
                 snake.score += 1
                 snake.steps_allowed += 200
-                snake.fitness += food_reward(snake)
+                snake.fitness += geneticAlgorithm.food_reward(snake)
                 snake.steps_taken = 0
                 snake.food = Food(width=width, height=height)
                 snake.grow()
@@ -248,8 +209,6 @@ if is_learning:
             snake = Snake(width=width, height=height,
                           color=red, brain=SnakeAI())
             snakes.append(snake)
-
-
 else:
     for brain_file in pick_some_trained_brains(100):
         snake = Snake(width=width, height=height, color=red, brain=SnakeAI())

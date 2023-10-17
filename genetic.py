@@ -111,10 +111,42 @@ class GeneticAlgorithm:
         # Return the mutated copy of the DNA neural network.
         return baby
 
-        avg_score = []
-        for agent in agents:
-            avg_scored = return_average_score(agent, runs)
-            avg_score.append(avg_scored)
-            print("score : ", agent.score, "fitness : ",
-                  agent.fitness, "average fitness : ", avg_scored)
-        return avg_score
+
+class SnakeLearning(GeneticAlgorithm):
+    def calculate_fitness(self, snake: Snake) -> float:
+        """
+        Calculates the fitness score of a given snake.
+
+        Args:
+            snake (Snake): The snake object for which the fitness score needs to be calculated.
+
+        Returns:
+            float: The fitness score of the given snake.
+        """
+        # Encourage the snake to stay alive for as long as possible
+        return snake.life_time
+
+    def food_reward(self, snake: Snake) -> float:
+        """
+        Calculates the food reward for a given snake.
+
+        Args:
+            snake (Snake): The snake object for which the food reward needs to be calculated.
+
+        Returns:
+            float: The food reward for the given snake.
+        """
+        reward = 0
+        # Give more emphasis to length and number of foods eaten as the game progresses
+        if snake.score >= 2:
+            reward += snake.length * 50
+            reward += snake.score * 80
+
+        # Once the snake has eaten 10 foods, encourage it to take the shortest path to the food
+        if snake.score >= 10:
+
+            # Increase the fitness score based on the inverse of the number of steps taken to reach the food,
+            # encouraging the snake to take the shortest path
+            reward += (1 / snake.steps_taken) * 1000
+
+        return reward
