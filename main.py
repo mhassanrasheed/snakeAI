@@ -1,7 +1,6 @@
 import copy
 import os
 import random
-from datetime import datetime
 from snakeAI import SnakeAI
 from food import Food
 from snake import Snake
@@ -11,7 +10,7 @@ import numpy as np
 import pygame
 import torch
 import torch.nn as nn
-from config import red, green, yellow, width, height, speed, \
+from config import red, width, height, speed, \
     population, gen, is_human, is_learning, resume_learning, \
     number_of_brains_from_previous_run, code_debugging,\
     prev_folder, to_save_folder
