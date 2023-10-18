@@ -63,6 +63,7 @@ class Snake:
         self.food = Food(width=width, height=height)
         # self.x = int(round(random.randrange(0, height - self.block) / 10.0) * 10.0)
         # self.y = int(round(random.randrange(0, height - self.block) / 10.0) * 10.0)
+        self.isAlive = True
         self.x = 450
         self.y = 230
         self.dx = 0

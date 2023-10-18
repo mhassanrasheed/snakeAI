@@ -139,9 +139,6 @@ class GameDisplay(Display):
         # Draw the food
         self.draw_food(food)
 
-        # Move the snake
-        snake.move()
-
         # Draw the snake
         self.draw_snake(snake)
 
