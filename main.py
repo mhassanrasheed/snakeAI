@@ -150,8 +150,5 @@ else:
 
 while gen < 10000:
     [run(snake, False, True) for snake in snakes]
-    for new_brain in next_generation(snakes):
-        new_snake = Snake(width=width, height=height,
-                          color=red, brain=SnakeAI())
-        new_snake.brain = new_brain
-        snakes.append(new_snake)
+    snakes = [Snake(width=width, height=height,
+                    color=red, brain=new_brain) for new_brain in next_generation([run(snake, False, True) for snake in snakes])]
