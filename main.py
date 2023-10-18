@@ -149,6 +149,5 @@ else:
         run(snake.brain, True, False)
 
 while gen < 10000:
-    [run(snake, False, True) for snake in snakes]
     snakes = [Snake(width=width, height=height,
                     color=red, brain=new_brain) for new_brain in next_generation([run(snake, False, True) for snake in snakes])]
