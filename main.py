@@ -2,7 +2,7 @@ import os
 from snakeAI import SnakeAI
 from food import Food
 from snake import Snake
-from helpers import select_top, weighted_random_choice, pick_some_trained_brains
+from helpers import select_top, pick_some_trained_brains
 from display import GameDisplay
 from genetic import SnakeLearning
 import pygame
