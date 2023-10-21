@@ -75,8 +75,7 @@ def run(snake: Snake, display: bool, training: bool):
     - training (bool): A flag indicating whether the snake is in training mode.
 
     Returns:
-    - Snake or None: If `Training` is False, returns the snake object after the game loop;
-      otherwise, returns None.
+    - Snake: Returns the snake object after the game loop
     """
     if display:
         # Needed for pygame window to appear
@@ -118,7 +117,7 @@ def run(snake: Snake, display: bool, training: bool):
             snake.food = Food(width=width, height=height)
             snake.grow()
 
-    return snake if not training else None
+    return snake
 
 
 torch.set_grad_enabled(False)

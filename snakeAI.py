@@ -7,8 +7,6 @@ class SnakeAI(nn.Module):
         self.fc = nn.Sequential(
             nn.Linear(24, 16, bias=True),
             nn.ReLU(),
-            # nn.Linear(16, 8, bias=True),
-            # nn.ReLU(),
             nn.Linear(16, 4, bias=True),
             nn.Softmax(-1)
         )

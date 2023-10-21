@@ -10,7 +10,7 @@ import numpy as np
 class GeneticAlgorithm:
 
     def __init__(self) -> None:
-        self.mutation_power = 0.0
+        self.mutation_power = 0.00
 
     def mate(self, parents: list[Snake]) -> list[SnakeAI]:
         """
